@@ -2,17 +2,17 @@ package com.rance.aisiapplication.model
 
 import android.util.Log
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jsoup.Connection
 import org.jsoup.Jsoup
+import java.util.*
 
 @Entity
 class PicturesSet {
-    @PrimaryKey(autoGenerate = true)
-    var id = 0
+    @PrimaryKey
+    var url = ""
     var cover = ""
     var name = ""
 
@@ -34,7 +34,6 @@ class PicturesSet {
      * 社团地址
      */
     var associationUrl = ""
-    var url = ""
     var modelName = ""
     var modelUrl = ""
 
@@ -47,6 +46,17 @@ class PicturesSet {
      * 原图
      */
     var originalImageUrlList: MutableList<String> = arrayListOf()
+
+    /**
+     * 解析时间
+     */
+    var createTime = Date()
+
+    var lastWatchTime = Date()
+
+    var lastWatchPosition = 0
+
+    var watchNum = 0
 
     companion object {
         fun htmlToPicturesSetList(data: String): List<PicturesSet> {
@@ -114,7 +124,7 @@ class PicturesSet {
         val currentTime = System.currentTimeMillis()
         //收集第一页数据
         var totalPage = 1
-        url = "https://www.24tupian.org$url"
+        val url = "https://www.24tupian.org$url"
         try {
             val job = GlobalScope.launch {
                 val document = Jsoup.connect(url)
@@ -145,8 +155,6 @@ class PicturesSet {
 
                 val aArray = document.getElementsByClass("page ps").select("a")
                 totalPage = aArray[aArray.size - 3].text().trim().toInt()
-
-
             }
             job.join()
             //等待第一页完成处理采集每页任务
@@ -170,14 +178,32 @@ class PicturesSet {
                     originalImageUrlList.add(originalImageUrl)
                 }
             }
-        } catch (e: java.lang.Exception) {
-            Log.v("whc", "套图分页解析异常$e")
-            throw java.lang.Exception("采集异常")
+        } catch (e: Exception) {
+            Log.v("whc", "套图分页采集异常$e")
+            throw Exception("套图分页采集异常")
         }
-        Log.v("whc","$url 分页采集时间 ${System.currentTimeMillis()-currentTime}")
+        Log.v("whc", "$url 分页采集时间 ${System.currentTimeMillis() - currentTime}")
+    }
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PicturesSet
+
+        if (url != other.url) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return url.hashCode()
     }
 
     override fun toString(): String {
-        return "PicturesSet(id=$id, cover='$cover', name='$name', quantity=$quantity, fileSize='$fileSize', updateTime='$updateTime', clickNum=$clickNum, downNum=$downNum, associationName='$associationName', associationUrl='$associationUrl', url='$url', modelName='$modelName', modelUrl='$modelUrl', thumbnailUrlList=$thumbnailUrlList, originalImageUrlList=$originalImageUrlList)"
+        return "PicturesSet(url='$url', cover='$cover', name='$name', quantity=$quantity, fileSize='$fileSize', updateTime='$updateTime', clickNum=$clickNum, downNum=$downNum, associationName='$associationName', associationUrl='$associationUrl', modelName='$modelName', modelUrl='$modelUrl', thumbnailUrlList=$thumbnailUrlList, originalImageUrlList=$originalImageUrlList, createTime=$createTime, lastWatchTime=$lastWatchTime, lastWatchPosition=$lastWatchPosition, watchNum=$watchNum)"
     }
+
+
 }

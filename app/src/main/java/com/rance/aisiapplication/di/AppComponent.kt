@@ -1,7 +1,7 @@
 package com.rance.aisiapplication.di
 
 import android.app.Application
-import com.rance.aisiapplication.common.AiSiApp
+import com.rance.aisiapplication.AiSiApp
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule

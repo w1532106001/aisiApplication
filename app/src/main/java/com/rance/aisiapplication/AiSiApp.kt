@@ -1,4 +1,4 @@
-package com.rance.aisiapplication.common
+package com.rance.aisiapplication
 
 import android.app.Activity
 import android.app.Application

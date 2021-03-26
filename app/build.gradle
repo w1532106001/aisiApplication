@@ -15,7 +15,7 @@ android {
     }
     defaultConfig {
         applicationId "com.rance.aisiapplication"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -90,4 +90,11 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jsoup/jsoup
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
+
+    //paging 分页库
+    implementation "androidx.paging:paging-runtime:$paging_version"
+    implementation "androidx.paging:paging-rxjava2:$paging_version"
+    implementation "androidx.paging:paging-rxjava3:$paging_version"
+    implementation "androidx.paging:paging-guava:$paging_version"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha08"
 }

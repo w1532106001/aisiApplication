@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 import com.rance.aisiapplication.ui.home.HomeViewModel
+import com.rance.aisiapplication.ui.picturesset.PicturesSetViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -20,5 +21,10 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(HomeViewModel::class)
-    internal abstract fun bindCodeDetailViewModel(viewModel: HomeViewModel): ViewModel
+    internal abstract fun bindHomeViewModel(viewModel: HomeViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PicturesSetViewModel::class)
+    internal abstract fun bindPicturesSetViewModel(viewModel: PicturesSetViewModel): ViewModel
 }

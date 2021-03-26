@@ -25,7 +25,7 @@ import javax.inject.Inject
 abstract class BaseFragment : Fragment(), MvpView {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var baseBinding: FragmentBaseBinding
+    lateinit var baseBinding: FragmentBaseBinding
 
 
     open fun getLoadView(): LinearLayout = baseBinding.layoutProgress.root
@@ -80,6 +80,8 @@ abstract class BaseFragment : Fragment(), MvpView {
     }
 
     override fun showContent() {
+        getErrorView().visibility = View.GONE
+        getLoadView().visibility = View.GONE
         getContentView().visibility = View.VISIBLE
         getContentView().bringToFront()
     }

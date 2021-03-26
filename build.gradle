@@ -4,8 +4,10 @@ buildscript {
     ext.exoplayer_version = '2.9.6'
     ext.room_version = "2.2.6"
     ext.dagger_version = '2.23'
+    ext.paging_version = "3.0.0-beta01"
     repositories {
         google()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         jcenter()
     }
     dependencies {
@@ -20,6 +22,7 @@ buildscript {
 allprojects {
     repositories {
         google()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         jcenter()
     }
 }

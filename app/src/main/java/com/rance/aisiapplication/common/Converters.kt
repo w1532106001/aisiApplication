@@ -9,10 +9,20 @@ import java.util.*
 
 class Converters {
     @TypeConverter
-    fun listToString(list: List<String>?): String? = if (list == null || list.isEmpty()) "" else Gson().toJson(list)
+    fun listToString(list: MutableList<String>?): String? =
+        if (list == null || list.isEmpty()) "" else Gson().toJson(list)
 
     @TypeConverter
-    fun stringToList(string: String): List<String>? = if (TextUtils.isEmpty(string)) null else Gson().fromJson<List<String>>(string, object : TypeToken<List<String>>() {}.type)
+    fun stringToList(string: String?): MutableList<String>? {
+        if (TextUtils.isEmpty(string)) {
+            return mutableListOf()
+        } else {
+            return Gson().fromJson<MutableList<String>>(
+                string,
+                object : TypeToken<MutableList<String>>() {}.type
+            )
+        }
+    }
 
     @TypeConverter
     fun fromTimestamp(value: Long?): Date? {

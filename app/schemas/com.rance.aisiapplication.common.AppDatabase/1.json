@@ -2,16 +2,16 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "faf953d8e6590db928ddf2d13f8c3500",
+    "identityHash": "f43d1ba9950fcb36ad9eabb538a9128f",
     "entities": [
       {
         "tableName": "PicturesSet",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `updateTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `url` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `updateTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, PRIMARY KEY(`url`))",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -69,12 +69,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "url",
-            "columnName": "url",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
             "fieldPath": "modelName",
             "columnName": "modelName",
             "affinity": "TEXT",
@@ -97,13 +91,37 @@
             "columnName": "originalImageUrlList",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastWatchTime",
+            "columnName": "lastWatchTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastWatchPosition",
+            "columnName": "lastWatchPosition",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "watchNum",
+            "columnName": "watchNum",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "url"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
@@ -112,7 +130,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'faf953d8e6590db928ddf2d13f8c3500')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f43d1ba9950fcb36ad9eabb538a9128f')"
     ]
   }
 }
