@@ -40,7 +40,7 @@ class Model {
     }
 
     fun htmlToModel(data: String): Model {
-        var model: Model = Model()
+        val model: Model = Model()
         try {
             val html = Jsoup.parse(data)
             val hd1 = html.getElementsByClass("hd1")[0]

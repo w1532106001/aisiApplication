@@ -5,6 +5,7 @@ package com.rance.aisiapplication.ui.base
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.transition.ChangeBounds
+import com.jaeger.library.StatusBarUtil
 import com.rance.aisiapplication.databinding.FragmentBaseBinding
 import javax.inject.Inject
 
@@ -60,10 +62,9 @@ abstract class BaseFragment : Fragment(), MvpView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        AndroidSupportInjection.inject(this)
 
+        StatusBarUtil.setColor(activity, Color.BLACK);
 
-//        appbar_base.visibility = View.GONE
 
     }
 
@@ -130,4 +131,19 @@ abstract class BaseFragment : Fragment(), MvpView {
         }
         return null
     }
+
+//    open fun setStatusBarColor(activity: Activity, colorId: Int) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            val window: Window = activity.window
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+//            window.setStatusBarColor(activity.resources.getColor(colorId))
+//        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+////            //使用SystemBarTint库使4.4版本状态栏变色，需要先将状态栏设置为透明
+////            transparencyBar(activity)
+////            val tintManager = SystemBarTintManager(activity)
+////            tintManager.setStatusBarTintEnabled(true)
+////            tintManager.setStatusBarTintResource(colorId)
+//        }
+//    }
 }

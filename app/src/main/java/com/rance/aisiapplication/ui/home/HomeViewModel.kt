@@ -15,7 +15,7 @@ class HomeViewModel @Inject constructor(val database: AppDatabase) : ViewModel()
     val flow = Pager(
         // Configure how data is loaded by passing additional properties to
         // PagingConfig, such as prefetchDistance.
-        PagingConfig(pageSize = 20)
+        PagingConfig(pageSize = 10)
     ) {
         PicturesSetPagingSource(this)
     }.flow

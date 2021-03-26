@@ -40,7 +40,7 @@ class PicturesSetAdapter(differCallback: PicturesSetComparator, val homeFragment
                     val bundle = Bundle()
                     bundle.putSerializable("url", item.url)
                     homeFragment.findNavController()
-                        .navigate(R.id.action_navigation_home_to_picturesSetFragment, bundle)
+                        .navigate(R.id.action_navigation_home_to_watchImagesFragment, bundle)
                 }
             }
         }
