@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">aisiApplication</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">主页</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="association_name">隶属套图：</string>
+    <string name="file_size">文件大小：</string>
+    <string name="release_time">发布时间：</string>
+    <string name="model">模特：</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="download">下载</string>
+    <string name="favorites">收藏</string>
 </resources>

@@ -9,9 +9,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.rance.aisiapplication.common.AppDatabase
 import com.rance.aisiapplication.model.PicturesSet
+import com.smartmicky.android.data.api.ApiHelper
 import javax.inject.Inject
 
-class HomeViewModel @Inject constructor(val database: AppDatabase) : ViewModel() {
+class HomeViewModel @Inject constructor(val database: AppDatabase,val apiHelper: ApiHelper) : ViewModel() {
     val flow = Pager(
         // Configure how data is loaded by passing additional properties to
         // PagingConfig, such as prefetchDistance.
@@ -20,11 +21,6 @@ class HomeViewModel @Inject constructor(val database: AppDatabase) : ViewModel()
         PicturesSetPagingSource(this)
     }.flow
         .cachedIn(viewModelScope)
-
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
-    }
-    val text: LiveData<String> = _text
 
     fun savePicturesSet(picturesSetList: List<PicturesSet>) {
         picturesSetList.forEach {

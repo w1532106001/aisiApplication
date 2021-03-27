@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.rance.aisiapplication.common.AppDatabase
 import com.rance.aisiapplication.model.PicturesSet
+import com.smartmicky.android.data.api.ApiHelper
 import javax.inject.Inject
 
-class PicturesSetViewModel @Inject constructor(val database: AppDatabase) : ViewModel() {
+class PicturesSetViewModel @Inject constructor(val database: AppDatabase,val apiHelper: ApiHelper) : ViewModel() {
     //    var url = ""
     //查询数据库中item
     lateinit var picturesSetLiveData: LiveData<PicturesSet>

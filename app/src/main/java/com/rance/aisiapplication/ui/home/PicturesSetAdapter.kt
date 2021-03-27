@@ -7,8 +7,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.rance.aisiapplication.R
+import com.rance.aisiapplication.common.loadImage
+import com.rance.aisiapplication.common.toast
 import com.rance.aisiapplication.databinding.ItemHomePicturesSetBinding
 import com.rance.aisiapplication.model.PicturesSet
+import com.rance.aisiapplication.ui.imageview.WatchImagesFragment
+import com.rance.aisiapplication.ui.picturesset.PicturesSetFragment
 
 class PicturesSetAdapter(differCallback: PicturesSetComparator, val homeFragment: HomeFragment) :
     PagingDataAdapter<PicturesSet, PicturesSetViewHolder>(differCallback) {
@@ -35,12 +39,12 @@ class PicturesSetAdapter(differCallback: PicturesSetComparator, val homeFragment
         val item = getItem(position)
         holder.binding.apply {
             item?.let {
-                nameTextView.text = it.name.substring(0, 1)
+                val url = it.cover.replace("imgs","mbig").replace("m24mnorg","24mnorg")
+                imageView.loadImage(url)
+                nameTextView.text = it.name
                 itemLayout.setOnClickListener {
-                    val bundle = Bundle()
-                    bundle.putSerializable("url", item.url)
-                    homeFragment.findNavController()
-                        .navigate(R.id.action_navigation_home_to_watchImagesFragment, bundle)
+                    homeFragment.activity?.supportFragmentManager?.beginTransaction()?.add(R.id.layout_content,
+                        PicturesSetFragment.newInstance(item.url))?.addToBackStack(null)?.commit()
                 }
             }
         }

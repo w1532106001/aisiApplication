@@ -3,10 +3,10 @@ package com.rance.aisiapplication.ui.home
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.rance.aisiapplication.model.PicturesSet
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.jsoup.Connection
-import org.jsoup.Jsoup
+import retrofit2.awaitResponse
 
 class PicturesSetPagingSource(val homeViewModel: HomeViewModel) : PagingSource<Int, PicturesSet>() {
     override fun getRefreshKey(state: PagingState<Int, PicturesSet>): Int? {
@@ -27,22 +27,21 @@ class PicturesSetPagingSource(val homeViewModel: HomeViewModel) : PagingSource<I
         try {
             // Start refresh at page 1 if undefined.
             val nextPageNumber = params.key ?: 1
-            var picturesSetList = arrayListOf<PicturesSet>()
-            val job = GlobalScope.launch {
-                val document = Jsoup.connect("https://www.24tupian.org/meinv_$nextPageNumber.html")
-                    .ignoreContentType(false)
-                    .method(Connection.Method.GET)
-                    .execute().body()
-                picturesSetList =
-                    PicturesSet.htmlToPicturesSetList(document) as ArrayList<PicturesSet>
-                homeViewModel.savePicturesSet(picturesSetList)
+
+            val response = homeViewModel.apiHelper.getHtml("https://www.24tupian.org/tuimo_$nextPageNumber.html").awaitResponse()
+            return if(response.isSuccessful){
+                val picturesSetList = PicturesSet.htmlToPicturesSetList(response.body()!!) as ArrayList<PicturesSet>
+                GlobalScope.launch(Dispatchers.IO) {
+                    homeViewModel.savePicturesSet(picturesSetList)
+                }
+                LoadResult.Page(
+                    data = picturesSetList,
+                    prevKey = null, // Only paging forward.
+                    nextKey = nextPageNumber + 1
+                )
+            }else{
+                LoadResult.Error(Throwable("获取本页异常"))
             }
-            job.join()
-            return LoadResult.Page(
-                data = picturesSetList,
-                prevKey = null, // Only paging forward.
-                nextKey = nextPageNumber + 1
-            )
         } catch (e: Exception) {
             e.printStackTrace()
             // Handle errors in this block and return LoadResult.Error if it is an
@@ -50,4 +49,5 @@ class PicturesSetPagingSource(val homeViewModel: HomeViewModel) : PagingSource<I
         }
         return LoadResult.Error(Throwable("获取本页异常"))
     }
+
 }

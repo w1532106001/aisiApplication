@@ -63,7 +63,7 @@ abstract class BaseFragment : Fragment(), MvpView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        StatusBarUtil.setColor(activity, Color.BLACK);
+//        StatusBarUtil.setColor(activity, Color.BLACK);
 
 
     }

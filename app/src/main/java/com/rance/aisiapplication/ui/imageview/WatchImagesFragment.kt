@@ -12,13 +12,36 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.rance.aisiapplication.R
 import com.rance.aisiapplication.common.loadImage
 import com.rance.aisiapplication.databinding.WatchImagesFragmentBinding
+import com.rance.aisiapplication.model.PicturesSet
 import com.rance.aisiapplication.ui.base.BaseFragment
+import java.text.FieldPosition
 
 class WatchImagesFragment : BaseFragment() {
 
     lateinit var binding: WatchImagesFragmentBinding
 
     lateinit var imageAdapter: ImageAdapter
+
+    lateinit var picturesSet: PicturesSet
+
+    var position = -1
+    companion object{
+        fun newInstance(picturesSet:PicturesSet,position: Int): WatchImagesFragment {
+            return WatchImagesFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable("picturesSet", picturesSet)
+                    putInt("position", position)
+                }
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        picturesSet = requireArguments().getSerializable("picturesSet") as PicturesSet
+        position = requireArguments().getInt("position")
+
+    }
 
     override fun createContentView(inflater: LayoutInflater, container: ViewGroup?): View {
         binding = WatchImagesFragmentBinding.inflate(inflater)
@@ -32,17 +55,17 @@ class WatchImagesFragment : BaseFragment() {
             adapter = imageAdapter
             layoutManager = LinearLayoutManager(context)
             addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+            if(picturesSet.lastWatchPosition!=0){
+                position = picturesSet.lastWatchPosition
+            }
+            if(position<0||position>picturesSet.originalImageUrlList.size){
+                position = 0
+            }
+            scrollToPosition(position)
         }
+
         imageAdapter.setList(
-            arrayListOf(
-                "https://dss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2151136234,3513236673&fm=26&gp=0.jpg",
-                "https://dss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3054638224,4132759364&fm=26&gp=0.jpg",
-                "https://dss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2676935521,922112450&fm=11&gp=0.jpg",
-                "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1999921673,816131569&fm=26&gp=0.jpg",
-                "https://dss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3225163326,3627210682&fm=26&gp=0.jpg",
-                "https://dss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2583035764,1571388243&fm=26&gp=0.jpg",
-                "https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=4277010421,1238629898&fm=11&gp=0.jpg"
-            )
+            picturesSet.originalImageUrlList
         )
     }
 

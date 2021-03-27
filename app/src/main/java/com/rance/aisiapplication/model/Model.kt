@@ -89,7 +89,7 @@ class Model {
                         element.text().lastIndexOf("次")
                     )
                     .trim().toInt()
-                picturesSet.updateTime = element.text()
+                picturesSet.releaseTime = element.text()
                     .substring(element.text().lastIndexOf("更新时间：") + 5)
                     .trim();
                 model.picturesSetList!!.add(picturesSet);
@@ -126,7 +126,7 @@ class Model {
                         element.text().lastIndexOf('次')
                     )
                     .trim().toInt()
-                picturesSet.updateTime = element.text()
+                picturesSet.releaseTime = element.text()
                     .substring(element.text().lastIndexOf("更新时间：") + 5)
                     .trim()
                 picturesSetList.add(picturesSet);

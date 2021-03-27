@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f43d1ba9950fcb36ad9eabb538a9128f",
+    "identityHash": "56a9ae07108360c2ac45baf7fe6ae0e6",
     "entities": [
       {
         "tableName": "PicturesSet",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `updateTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, PRIMARY KEY(`url`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `releaseTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `updateTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, PRIMARY KEY(`url`))",
         "fields": [
           {
             "fieldPath": "url",
@@ -39,8 +39,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "updateTime",
-            "columnName": "updateTime",
+            "fieldPath": "releaseTime",
+            "columnName": "releaseTime",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -99,6 +99,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "updateTime",
+            "columnName": "updateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "lastWatchTime",
             "columnName": "lastWatchTime",
             "affinity": "INTEGER",
@@ -130,7 +136,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f43d1ba9950fcb36ad9eabb538a9128f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '56a9ae07108360c2ac45baf7fe6ae0e6')"
     ]
   }
 }
