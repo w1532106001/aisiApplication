@@ -7,7 +7,4 @@ interface DownloadListener {
 
     fun onFail()
 
-    fun onPaused()
-
-    fun onCanceled()
 }
