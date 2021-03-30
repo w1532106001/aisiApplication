@@ -3,9 +3,6 @@ package com.rance.aisiapplication.model
 import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import org.jsoup.Connection
 import org.jsoup.Jsoup
 import java.io.Serializable
 import java.util.*
@@ -59,6 +56,10 @@ class PicturesSet : Serializable {
     var lastWatchPosition = 0
 
     var watchNum = 0
+
+    var isDown = false
+
+    var fileMap = mutableMapOf<String, String>()
 
     companion object {
         fun htmlToPicturesSetList(data: String): List<PicturesSet> {

@@ -1,43 +1,70 @@
 package com.rance.aisiapplication.service
 
+import android.content.Context
+import com.rance.aisiapplication.model.PicturesSet
 import com.smartmicky.android.data.api.ApiHelper
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.*
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DownloadTask(
-    val list: MutableList<String>,
+    val picturesSet: PicturesSet,
     private val apiHelper: ApiHelper,
-    val downloadListener: DownloadListener
+    val downloadListener: DownloadListener,
+    val context: Context
 ) {
-    private val threadPool: ExecutorService = Executors.newFixedThreadPool(6)
+    lateinit var threadPool: ExecutorService
     private val isPause = AtomicBoolean(false)
-
-    var progress = 0
+    private val lock = Object()
+    private val downMap = mutableMapOf<String, String>()
 
     fun download() {
-        list.forEach {
-            threadPool.execute {
-//                if (!Thread.interrupted()) {
-
-                if (isPause.get()) {
-                    var isRunTask = false
-                    while (!isRunTask) {
-                        isRunTask = true
-                        downFile(it)
+        threadPool = Executors.newFixedThreadPool(6)
+        picturesSet.originalImageUrlList.forEach {
+            if (!picturesSet.fileMap.keys.contains(it)) {
+                threadPool.execute {
+                    if (isPause.get()) {
+                        synchronized(lock) {
+                            lock.wait()
+                        }
                     }
-                } else {
+                    Thread.sleep(3000)
                     downFile(it)
                 }
-
-//                }
-
             }
+        }
+        // 所有任务执行完成且等待队列中也无任务关闭线程池
+        threadPool.shutdown()
+        // 阻塞主线程, 直至线程池关闭
+        try {
+            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
+            println("执行完成")
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun pause() {
+        isPause.set(true)
+    }
+
+    fun resume() {
+        isPause.set(false)
+        synchronized(lock) {
+            lock.notifyAll()
+        }
+    }
+
+    fun cancel() {
+        if (this::threadPool.isInitialized) {
+            threadPool.shutdownNow()
         }
     }
 
@@ -79,57 +106,45 @@ class DownloadTask(
             return false
         }
     }
-
-
-    fun pause() {
-        isPause.set(true)
-    }
-
-    fun resume() {
-        isPause.set(false)
-    }
-
-    fun cancel() {
-        threadPool.shutdownNow()
-    }
-
-
     private fun downFile(url: String) {
-        apiHelper.downloadFileWithDynamicUrlSync(url)?.enqueue(object :
-            Callback<ResponseBody> {
-            override fun onResponse(
-                call: Call<ResponseBody>,
-                response: Response<ResponseBody>
-            ) {
-                if (response.isSuccessful) {
-                    try {
-                        val body = response.body()
-                        val bodyLength = body?.contentLength() ?: -1
-                        writeResponseBodyToDisk(File(""), body!!) { loaded, total ->
-                            val singleProgress: Float =
-                                loaded.toFloat() * 100f / total.toFloat()
-                            if (singleProgress == 1.0f) {
-                                progress += 1
-                                downloadListener.onProgress(progress)
+        try {
+
+            val file =
+                File(context.filesDir.absolutePath + File.separator + UUID.randomUUID() + ".jpg")
+            apiHelper.downloadFileWithDynamicUrlSync(url).enqueue(object :
+                Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.isSuccessful) {
+                        try {
+                            val body = response.body()
+                            val bodyLength = body?.contentLength() ?: -1
+                            writeResponseBodyToDisk(file, body!!) { loaded, total ->
+                                if (loaded == total) {
+                                    downMap.put(url, file.absolutePath)
+                                    downloadListener.onProgress(downMap.size)
+                                }
                             }
+                            //下载
+                            println("id:${Thread.currentThread().id}name:${Thread.currentThread().name}" + url)
+                        } catch (e: Exception) {
+                            downloadListener.onFail()
                         }
-                        //下载
-                        println("id:${Thread.currentThread().id}name:${Thread.currentThread().name}" + url)
-                        if (progress == list.size) {
-                            downloadListener.onSuccess()
-                            println("下载完成")
-                        }
-                    } catch (e: Exception) {
+                    } else {
                         downloadListener.onFail()
                     }
-                } else {
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable?) {
                     downloadListener.onFail()
                 }
-            }
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            downloadListener.onFail()
+        }
 
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable?) {
-                downloadListener.onFail()
-            }
-        })
     }
 }
