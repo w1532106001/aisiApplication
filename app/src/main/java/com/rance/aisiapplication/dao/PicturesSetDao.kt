@@ -14,6 +14,9 @@ interface PicturesSetDao {
     @Query("SELECT * FROM picturesSet")
     fun getAllPicturesSet(): LiveData<MutableList<PicturesSet>>
 
+    @Query("SELECT * FROM picturesSet")
+    fun getAllPicturesSet2(): MutableList<PicturesSet>
+
     @Query("SELECT * FROM picturesSet where url = :url")
     fun findPicturesSetByUrl(url: String): PicturesSet
 

@@ -1,8 +1,13 @@
 package com.rance.aisiapplication.service
 
 import android.content.Context
+import com.rance.aisiapplication.common.AppDatabase
+import com.rance.aisiapplication.model.DownType
 import com.rance.aisiapplication.model.PicturesSet
 import com.smartmicky.android.data.api.ApiHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -11,21 +16,23 @@ import java.io.*
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DownloadTask(
+    val context: Context,
     val picturesSet: PicturesSet,
     private val apiHelper: ApiHelper,
+    val database: AppDatabase,
     val downloadListener: DownloadListener,
-    val context: Context
-) {
+
+    ) {
     lateinit var threadPool: ExecutorService
     private val isPause = AtomicBoolean(false)
     private val lock = Object()
     private val downMap = mutableMapOf<String, String>()
-
+    var failCount = 0
     fun download() {
+        failCount = 0
         threadPool = Executors.newFixedThreadPool(6)
         picturesSet.originalImageUrlList.forEach {
             if (!picturesSet.fileMap.keys.contains(it)) {
@@ -35,27 +42,21 @@ class DownloadTask(
                             lock.wait()
                         }
                     }
-                    Thread.sleep(3000)
                     downFile(it)
                 }
             }
         }
-        // 所有任务执行完成且等待队列中也无任务关闭线程池
-        threadPool.shutdown()
-        // 阻塞主线程, 直至线程池关闭
-        try {
-            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
-            println("执行完成")
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
     }
 
     fun pause() {
+        picturesSet.downType = DownType.PAUSE
+        updatePicturesSet()
         isPause.set(true)
     }
 
     fun resume() {
+        picturesSet.downType = DownType.DOWNING
+        updatePicturesSet()
         isPause.set(false)
         synchronized(lock) {
             lock.notifyAll()
@@ -106,9 +107,10 @@ class DownloadTask(
             return false
         }
     }
-    private fun downFile(url: String) {
-        try {
 
+    private fun downFile(url: String) {
+        var isfail = false
+        try {
             val file =
                 File(context.filesDir.absolutePath + File.separator + UUID.randomUUID() + ".jpg")
             apiHelper.downloadFileWithDynamicUrlSync(url).enqueue(object :
@@ -118,33 +120,59 @@ class DownloadTask(
                     response: Response<ResponseBody>
                 ) {
                     if (response.isSuccessful) {
-                        try {
-                            val body = response.body()
-                            val bodyLength = body?.contentLength() ?: -1
+                        val body = response.body()
+                        val bodyLength = body?.contentLength() ?: -1
+                        GlobalScope.launch(Dispatchers.IO) {
                             writeResponseBodyToDisk(file, body!!) { loaded, total ->
                                 if (loaded == total) {
                                     downMap.put(url, file.absolutePath)
+                                    updatePicturesSet()
                                     downloadListener.onProgress(downMap.size)
+                                    if (picturesSet.originalImageUrlList.size == (picturesSet.fileMap.size + failCount)) {
+                                        if (failCount == 0) {
+                                            picturesSet.downType = DownType.SUCCESS
+                                        } else {
+                                            picturesSet.downType = DownType.FAIL
+                                        }
+                                        updatePicturesSet()
+                                        downloadListener.onExecuteComplete()
+                                    }
                                 }
                             }
-                            //下载
-                            println("id:${Thread.currentThread().id}name:${Thread.currentThread().name}" + url)
-                        } catch (e: Exception) {
-                            downloadListener.onFail()
                         }
+                        //下载
+                        println("id:${Thread.currentThread().id}name:${Thread.currentThread().name}" + url)
                     } else {
-                        downloadListener.onFail()
+                        isfail = true
                     }
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable?) {
-                    downloadListener.onFail()
+                    isfail = true
                 }
             })
         } catch (e: Exception) {
             e.printStackTrace()
-            downloadListener.onFail()
+            isfail = true
+        }
+        if (isfail) {
+            failCount++
+            if (picturesSet.originalImageUrlList.size == (picturesSet.fileMap.size + failCount)) {
+                if (failCount == 0) {
+                    picturesSet.downType = DownType.SUCCESS
+                } else {
+                    picturesSet.downType = DownType.FAIL
+                }
+                updatePicturesSet()
+                downloadListener.onExecuteComplete()
+            }
         }
 
+    }
+
+    fun updatePicturesSet() {
+        GlobalScope.launch(Dispatchers.IO) {
+            database.getPicturesSetDao().update(picturesSet)
+        }
     }
 }

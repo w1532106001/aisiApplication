@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "56a9ae07108360c2ac45baf7fe6ae0e6",
+    "identityHash": "e08ff9b2e0ac7bf9d9fd45c37f90ea58",
     "entities": [
       {
         "tableName": "PicturesSet",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `releaseTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `updateTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, PRIMARY KEY(`url`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `releaseTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `updateTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, `downType` INTEGER NOT NULL, `fileMap` TEXT NOT NULL, PRIMARY KEY(`url`))",
         "fields": [
           {
             "fieldPath": "url",
@@ -121,6 +121,18 @@
             "columnName": "watchNum",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "downType",
+            "columnName": "downType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileMap",
+            "columnName": "fileMap",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -136,7 +148,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '56a9ae07108360c2ac45baf7fe6ae0e6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e08ff9b2e0ac7bf9d9fd45c37f90ea58')"
     ]
   }
 }

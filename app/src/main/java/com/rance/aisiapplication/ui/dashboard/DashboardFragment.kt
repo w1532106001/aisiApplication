@@ -4,24 +4,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.rance.aisiapplication.R
-import com.rance.aisiapplication.common.toast
+import com.rance.aisiapplication.common.AppDatabase
 import com.rance.aisiapplication.databinding.FragmentDashboardBinding
+import com.rance.aisiapplication.model.DownType
 import com.rance.aisiapplication.model.PicturesSet
 import com.rance.aisiapplication.service.DownloadListener
 import com.rance.aisiapplication.service.DownloadTask
 import com.rance.aisiapplication.ui.base.BaseFragment
 import com.smartmicky.android.data.api.ApiHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class DashboardFragment : BaseFragment(), DownloadListener {
+class DashboardFragment : BaseFragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
 
     @Inject
     lateinit var apiHelper: ApiHelper
+
+    @Inject
+    lateinit var database: AppDatabase
 
     lateinit var binding: FragmentDashboardBinding
     val picturesSet = PicturesSet()
@@ -47,46 +55,123 @@ class DashboardFragment : BaseFragment(), DownloadListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val downloadTask = DownloadTask(PicturesSet(), apiHelper, this, requireContext())
 
-        binding.startButton.setOnClickListener {
-            downloadTask.download()
-        }
-        binding.pauseButton.setOnClickListener {
-            downloadTask.pause()
-        }
-        binding.resumeButton.setOnClickListener {
-            downloadTask.resume()
-        }
-        binding.cancelButton.setOnClickListener {
-            downloadTask.cancel()
-        }
-    }
+        val itemAdapter = ItemAdapter().apply {
+            setOnItemChildClickListener { adapter, view, position ->
+                var downloadTask: DownloadTask? = null
+                val item = data[position]
+                when (view.id) {
+                    R.id.button -> {
+                        when (item.downType) {
+                            DownType.NONE -> {
+                                downloadTask = DownloadTask(
+                                    requireContext(),
+                                    item,
+                                    apiHelper,
+                                    database,
+                                    object : DownloadListener {
+                                        override fun onProgress(progress: Int) {
+                                            notifyItemChanged(position)
+                                        }
 
-    override fun onProgress(progress: Int) {
-        binding.progressTextView.text = "$progress/${list.size}"
-    }
+//                                    override fun onFail() {
+//                                        notifyItemChanged(position)
+//                                    }
 
-    override fun onExecuteComplete() {
-        val count = picturesSet.fileMap.size
-        val total = picturesSet.originalImageUrlList.size
-        toast(
-            "执行完成" + if (count == total) {
-                "下载完成"
-            } else {
-                "下载失败 $count / $total"
+                                        override fun onExecuteComplete() {
+                                            notifyItemChanged(position)
+                                        }
+                                    })
+                                downloadTask.download()
+                            }
+                            DownType.PAUSE -> {
+                                downloadTask?.resume()
+                            }
+                            DownType.FAIL -> {
+                                downloadTask = DownloadTask(
+                                    requireContext(),
+                                    item,
+                                    apiHelper,
+                                    database,
+                                    object : DownloadListener {
+                                        override fun onProgress(progress: Int) {
+                                            GlobalScope.launch(Dispatchers.Main) {
+                                                notifyItemChanged(position)
+                                            }
+                                        }
+
+//                                    override fun onFail() {
+//                                        notifyItemChanged(position)
+//                                    }
+
+                                        override fun onExecuteComplete() {
+                                            GlobalScope.launch(Dispatchers.Main) {
+                                                notifyItemChanged(position)
+                                            }
+                                        }
+                                    })
+                                downloadTask?.download()
+                            }
+                            DownType.DOWNING -> {
+                                downloadTask?.pause()
+                            }
+                            DownType.SUCCESS -> {
+
+                            }
+                        }
+                    }
+                }
+
+
             }
-        )
+        }
+        itemAdapter.addChildClickViewIds(R.id.button)
+        binding.recyclerView.apply {
+            adapter = itemAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
+
+
+
+
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val picturesSetList = database.getPicturesSetDao().getAllPicturesSet2()
+            launch(Dispatchers.Main) {
+                itemAdapter.setList(picturesSetList?.take(10))
+            }
+        }
     }
 
-    override fun onFail() {
-        toast("下载失败")
-    }
 
-
-    class itemAdapter : BaseQuickAdapter<PicturesSet, BaseViewHolder>(R.layout.item_download) {
+    class ItemAdapter : BaseQuickAdapter<PicturesSet, BaseViewHolder>(R.layout.item_download) {
         override fun convert(holder: BaseViewHolder, item: PicturesSet) {
-            TODO("Not yet implemented")
+            holder.setText(R.id.nameTextView, holder.bindingAdapterPosition.toString())
+            val count = item.fileMap.size
+            val total = item.originalImageUrlList.size
+            when (item.downType) {
+                DownType.NONE -> {
+                    holder.setText(R.id.nameTextView, "未开始")
+                    holder.setText(R.id.button, "下载")
+                }
+                DownType.DOWNING -> {
+                    holder.setText(R.id.nameTextView, "下载中 $count / $total")
+                    holder.setText(R.id.button, "暂停")
+                }
+                DownType.PAUSE -> {
+                    holder.setText(R.id.nameTextView, "暂停 $count / $total")
+                    holder.setText(R.id.button, "恢复")
+                }
+
+                DownType.FAIL -> {
+                    holder.setText(R.id.nameTextView, "失败 $count / $total")
+                    holder.setText(R.id.button, "继续下载")
+                }
+                DownType.SUCCESS -> {
+                    holder.setText(R.id.nameTextView, "下载完成")
+                    holder.setGone(R.id.button, true)
+                }
+            }
         }
 
     }

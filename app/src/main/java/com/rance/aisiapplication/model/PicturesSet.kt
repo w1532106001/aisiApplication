@@ -57,7 +57,7 @@ class PicturesSet : Serializable {
 
     var watchNum = 0
 
-    var isDown = false
+    var downType = DownType.NONE
 
     var fileMap = mutableMapOf<String, String>()
 
