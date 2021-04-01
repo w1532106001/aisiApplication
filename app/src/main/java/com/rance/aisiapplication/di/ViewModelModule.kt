@@ -2,6 +2,7 @@ package com.rance.aisiapplication.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.rance.aisiapplication.ui.downloadlist.DownloadListViewModel
 
 import com.rance.aisiapplication.ui.home.HomeViewModel
 import com.rance.aisiapplication.ui.picturesset.PicturesSetViewModel
@@ -27,4 +28,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(PicturesSetViewModel::class)
     internal abstract fun bindPicturesSetViewModel(viewModel: PicturesSetViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(DownloadListViewModel::class)
+    internal abstract fun bindDownloadListViewModel(viewModel: DownloadListViewModel): ViewModel
 }

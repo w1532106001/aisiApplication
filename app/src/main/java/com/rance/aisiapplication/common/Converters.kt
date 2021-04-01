@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rance.aisiapplication.model.DownType
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 
 class Converters {
@@ -46,16 +47,16 @@ class Converters {
     }
 
     @TypeConverter
-    fun mapToString(map: Map<String, String>): String {
+    fun mapToString(map: ConcurrentHashMap<String, String>): String {
         return Gson().toJson(map)
     }
 
     @TypeConverter
-    fun stringToMap(string: String?): Map<String, String> {
+    fun stringToMap(string: String?): ConcurrentHashMap<String, String> {
         return if (string.isNullOrEmpty()) {
-            mapOf()
+            ConcurrentHashMap()
         } else {
-            Gson().fromJson(string.toString(), object : TypeToken<Map<String, String>>() {}.type)
+            Gson().fromJson(string.toString(), object : TypeToken<ConcurrentHashMap<String, String>>() {}.type)
         }
     }
 }

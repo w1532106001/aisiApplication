@@ -1,6 +1,7 @@
 package com.rance.aisiapplication.di
 
 import com.rance.aisiapplication.ui.dashboard.DashboardFragment
+import com.rance.aisiapplication.ui.downloadlist.DownloadListFragment
 import com.rance.aisiapplication.ui.home.HomeFragment
 import com.rance.aisiapplication.ui.imageview.WatchImagesFragment
 import com.rance.aisiapplication.ui.picturesset.PicturesSetFragment
@@ -21,4 +22,7 @@ abstract class FragmentModule {
 
     @ContributesAndroidInjector
     abstract fun contributeWatchImagesFragment(): WatchImagesFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeDownloadListFragment(): DownloadListFragment
 }

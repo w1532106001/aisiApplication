@@ -173,11 +173,11 @@ class PicturesSetFragment : BaseFragment() {
                 totalPage = aArray[aArray.size - 3].text().trim().toInt()
 
                 //等待第一页完成处理采集每页任务
-                if (totalPage != 1) {
+                if (totalPage > 1) {
                     val pageJob = GlobalScope.launch {
-                        repeat(totalPage) {
+                        repeat(totalPage-1) {
                             Log.v("whc","采集第${it}页时间：${System.currentTimeMillis()}")
-                            val pageUrl = url.replace(".html", "") + '_' + it.toString() + ".html"
+                            val pageUrl = url.replace(".html", "") + '_' + (it+1).toString() + ".html"
                             val pageDocumentResponse = apiHelper.getHtml(pageUrl).awaitResponse()
                             if (pageDocumentResponse.isSuccessful) {
                                 val pageDocument =

@@ -2,10 +2,12 @@ package com.rance.aisiapplication.model
 
 import android.util.Log
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import org.jsoup.Jsoup
 import java.io.Serializable
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Entity
 class PicturesSet : Serializable {
@@ -59,7 +61,13 @@ class PicturesSet : Serializable {
 
     var downType = DownType.NONE
 
-    var fileMap = mutableMapOf<String, String>()
+    @Ignore
+    var downloading = false
+
+    @Ignore
+    var waiting = false
+
+    var fileMap: ConcurrentHashMap<String, String> = ConcurrentHashMap<String, String>()
 
     companion object {
         fun htmlToPicturesSetList(data: String): List<PicturesSet> {

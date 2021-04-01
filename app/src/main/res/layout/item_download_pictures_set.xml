@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:layout_margin="10dp"
+    app:cardCornerRadius="@dimen/dp_10">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:orientation="horizontal">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/roundImageView"
+            android:layout_width="90dp"
+            android:layout_height="match_parent"
+            android:src="@color/black"
+            app:riv_corner_radius="10dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/nameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="啊的撒按时发送大大萨达萨达啊实打实打算带阿斯顿阿斯顿阿三大多少撒旦阿斯顿阿斯顿阿迪斯啊实打实的啊实打实的啊啊阿斯顿"
+                android:textColor="@color/text_black"
+                android:textSize="16sp" />
+
+            <RelativeLayout
+                android:id="@+id/downloadingLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible">
+
+                <TextView
+                    android:id="@+id/progressTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="123/213"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/speedPerSecondTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="123kb/s"
+                    android:textSize="12sp" />
+
+                <ProgressBar
+                    android:id="@+id/downloadProgressBar"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_below="@+id/progressTextView"
+                    android:layout_marginTop="5dp"
+                    android:max="100"
+                    android:progress="12"
+                    android:progressDrawable="@drawable/progress_download_style" />
+
+                <ImageView
+                    android:id="@+id/cancelButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/ic_baseline_pause_24" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/notDownloadingLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/statusTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/completed"
+                    android:textColor="@android:color/holo_purple" />
+
+                <ImageView
+                    android:id="@+id/startButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/ic_baseline_play_arrow_24" />
+            </RelativeLayout>
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

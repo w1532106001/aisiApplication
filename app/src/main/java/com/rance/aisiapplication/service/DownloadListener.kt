@@ -1,9 +1,9 @@
 package com.rance.aisiapplication.service
 
-interface DownloadListener {
-    fun onProgress(progress: Int)
+interface DownloadTaskService {
+    fun updateProgress()
 
-//    fun onFail()
+    fun updateSpeedPerSecond(speedPerSecond:String)
 
-    fun onExecuteComplete()
+    fun executeComplete()
 }
