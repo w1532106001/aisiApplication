@@ -1,6 +1,7 @@
 package com.rance.aisiapplication.service
 
 import android.content.Context
+import android.util.Log
 import com.rance.aisiapplication.common.AppDatabase
 import com.rance.aisiapplication.model.DownType
 import com.rance.aisiapplication.model.PicturesSet
@@ -9,14 +10,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import retrofit2.*
 import java.io.*
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 class DownloadTask(
     val context: Context,
@@ -29,22 +30,39 @@ class DownloadTask(
     lateinit var threadPool: ExecutorService
     private val isPause = AtomicBoolean(false)
     private val lock = Object()
-    private val downMap = mutableMapOf<String, String>()
-    var failCount = 0
+
+    var pause = false
+    var lastUpdateTime = 0L
+    private val failCount = AtomicInteger(0)
     fun download() {
-        failCount = 0
-        threadPool = Executors.newFixedThreadPool(6)
-        picturesSet.originalImageUrlList.forEach {
-            if (!picturesSet.fileMap.keys.contains(it)) {
-                threadPool.execute {
-                    if (isPause.get()) {
-                        synchronized(lock) {
-                            lock.wait()
+        GlobalScope.launch(Dispatchers.IO) {
+            failCount.set(0)
+            threadPool = Executors.newFixedThreadPool(6)
+            picturesSet.originalImageUrlList.forEach {
+                if (!picturesSet.fileMap.keys.contains(it)) {
+                    threadPool.execute {
+                        if (isPause.get()) {
+                            synchronized(lock) {
+                                lock.wait()
+                            }
                         }
+                        downFile(it)
                     }
-                    downFile(it)
                 }
             }
+            threadPool.shutdown()
+            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS)
+
+            if (picturesSet.originalImageUrlList.size == (picturesSet.fileMap.size + failCount.get())) {
+                if (failCount.get() == 0) {
+                    picturesSet.downType = DownType.SUCCESS
+                } else {
+                    picturesSet.downType = DownType.FAIL
+                }
+                updatePicturesSet()
+                downloadListener.onExecuteComplete()
+            }
+            Log.v("whc", "下载线程执行结束")
         }
     }
 
@@ -69,110 +87,57 @@ class DownloadTask(
         }
     }
 
-    fun writeResponseBodyToDisk(
+    /**
+     * 写入文件到硬盘 上层try catch
+     * @param dstFile File
+     * @param body ResponseBody
+     */
+    private fun writeResponseBodyToDisk(
         dstFile: File,
         body: ResponseBody,
-        objects: (loaded: Long, total: Long) -> Unit
-    ): Boolean {
-        try {
-            var inputStream: InputStream? = null
-            var outputStream: OutputStream? = null
-            try {
-                val fileReader = ByteArray(4096)
-                val fileSize = body.contentLength()
-                var fileSizeDownloaded: Long = 0
-                inputStream = body.byteStream()
-                outputStream = FileOutputStream(dstFile)
-
-                while (true) {
-                    val read = inputStream!!.read(fileReader)
-                    if (read == -1) {
-                        break
-                    }
-                    outputStream.write(fileReader, 0, read)
-                    fileSizeDownloaded += read.toLong()
-                    objects(fileSizeDownloaded, fileSize)
-                }
-                outputStream.flush()
-                return true
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return false
-            } finally {
-                inputStream?.close()
-                outputStream?.close()
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return false
+    ) {
+        val fos = FileOutputStream(dstFile)
+        val bis = BufferedInputStream(body.byteStream())
+        val buffer = ByteArray(4096)
+        var len: Int
+        while (((bis.read(buffer)).also { len = it }) != -1) {
+            fos.write(buffer, 0, len)
         }
+        fos.close()
+        bis.close()
+        body.close()
     }
 
     private fun downFile(url: String) {
-        var isfail = false
+        val file =
+            File(
+                context.filesDir.absolutePath + File.separator + url.substring(url.lastIndexOf("/") + 1)
+                    .replace(".jpg", "").replace(".png", "") + ".jpg"
+            )
         try {
-            val file =
-                File(context.filesDir.absolutePath + File.separator + UUID.randomUUID() + ".jpg")
-            apiHelper.downloadFileWithDynamicUrlSync(url).enqueue(object :
-                Callback<ResponseBody> {
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    if (response.isSuccessful) {
-                        val body = response.body()
-                        val bodyLength = body?.contentLength() ?: -1
-                        GlobalScope.launch(Dispatchers.IO) {
-                            writeResponseBodyToDisk(file, body!!) { loaded, total ->
-                                if (loaded == total) {
-                                    downMap.put(url, file.absolutePath)
-                                    updatePicturesSet()
-                                    downloadListener.onProgress(downMap.size)
-                                    if (picturesSet.originalImageUrlList.size == (picturesSet.fileMap.size + failCount)) {
-                                        if (failCount == 0) {
-                                            picturesSet.downType = DownType.SUCCESS
-                                        } else {
-                                            picturesSet.downType = DownType.FAIL
-                                        }
-                                        updatePicturesSet()
-                                        downloadListener.onExecuteComplete()
-                                    }
-                                }
-                            }
-                        }
-                        //下载
-                        println("id:${Thread.currentThread().id}name:${Thread.currentThread().name}" + url)
-                    } else {
-                        isfail = true
+            val response = apiHelper.downloadFileWithDynamicUrlSync(url).execute()
+            if (response.isSuccessful) {
+                writeResponseBodyToDisk(file, response.body()!!)
+                synchronized(lock) {
+                    picturesSet.fileMap.put(url, file.absolutePath)
+                    picturesSet.downType = DownType.DOWNING
+                    this@DownloadTask.updatePicturesSet()
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastUpdateTime > 200) {
+                        lastUpdateTime = currentTime
+                        downloadListener.onProgress(picturesSet.fileMap.size)
                     }
                 }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable?) {
-                    isfail = true
-                }
-            })
-        } catch (e: Exception) {
-            e.printStackTrace()
-            isfail = true
-        }
-        if (isfail) {
-            failCount++
-            if (picturesSet.originalImageUrlList.size == (picturesSet.fileMap.size + failCount)) {
-                if (failCount == 0) {
-                    picturesSet.downType = DownType.SUCCESS
-                } else {
-                    picturesSet.downType = DownType.FAIL
-                }
-                updatePicturesSet()
-                downloadListener.onExecuteComplete()
+                println("id:${Thread.currentThread().id}name:${Thread.currentThread().name}" + url)
+            } else {
+                failCount.incrementAndGet()
             }
+        } catch (e: Exception) {
+            failCount.incrementAndGet()
         }
-
     }
 
-    fun updatePicturesSet() {
-        GlobalScope.launch(Dispatchers.IO) {
-            database.getPicturesSetDao().update(picturesSet)
-        }
+    private fun updatePicturesSet() {
+        database.getPicturesSetDao().update(picturesSet)
     }
 }

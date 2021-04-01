@@ -51,7 +51,11 @@ class Converters {
     }
 
     @TypeConverter
-    fun stringToMap(string: String): Map<String, String> {
-        return Gson().fromJson(string, object : TypeToken<Map<String, String>>() {}.type)
+    fun stringToMap(string: String?): Map<String, String> {
+        return if (string.isNullOrEmpty()) {
+            mapOf()
+        } else {
+            Gson().fromJson(string.toString(), object : TypeToken<Map<String, String>>() {}.type)
+        }
     }
 }

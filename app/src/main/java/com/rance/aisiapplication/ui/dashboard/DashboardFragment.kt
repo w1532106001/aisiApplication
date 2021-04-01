@@ -9,6 +9,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.rance.aisiapplication.R
 import com.rance.aisiapplication.common.AppDatabase
+import com.rance.aisiapplication.common.runOnUiThread
 import com.rance.aisiapplication.databinding.FragmentDashboardBinding
 import com.rance.aisiapplication.model.DownType
 import com.rance.aisiapplication.model.PicturesSet
@@ -71,18 +72,18 @@ class DashboardFragment : BaseFragment() {
                                     database,
                                     object : DownloadListener {
                                         override fun onProgress(progress: Int) {
-                                            notifyItemChanged(position)
+                                            runOnUiThread {
+                                                notifyItemChanged(position)
+                                            }
                                         }
-
-//                                    override fun onFail() {
-//                                        notifyItemChanged(position)
-//                                    }
 
                                         override fun onExecuteComplete() {
-                                            notifyItemChanged(position)
+                                            runOnUiThread {
+                                                notifyItemChanged(position)
+                                            }
                                         }
                                     })
-                                downloadTask.download()
+                                downloadTask!!.download()
                             }
                             DownType.PAUSE -> {
                                 downloadTask?.resume()
