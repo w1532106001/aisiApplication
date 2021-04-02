@@ -81,26 +81,4 @@ class DownloadTaskController : DownloadTaskControllerService {
     private fun findTaskByUrl(url: String): DownloadTask? {
         return downloadTaskList.find { it.picturesSet.url==url }
     }
-
-
-//    private fun findCurrentInAdapterPosition(): Int {
-//        var position = -1
-//        downPicturesSetAdapter?.data?.indexOfFirst { it.url==currentTask?.picturesSet?.url  }?.let {
-//            position = it
-//        }
-//        return position
-//
-//    }
-//
-//    private fun modifyCurrentTaskViewAsDownloadType(isDownloading:Boolean){
-//        val position = findCurrentInAdapterPosition()
-//        if(position!=-1){
-//            downPicturesSetAdapter?.apply {
-//                data[position].let {
-//                    it.downloading = isDownloading
-//                }
-//                notifyItemChanged(position)
-//            }
-//        }
-//    }
 }

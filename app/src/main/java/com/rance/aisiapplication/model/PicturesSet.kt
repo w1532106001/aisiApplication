@@ -59,7 +59,7 @@ class PicturesSet : Serializable {
 
     var watchNum = 0
 
-    var downType = DownType.NONE
+    var downloadType = DownType.NONE
 
     @Ignore
     var downloading = false

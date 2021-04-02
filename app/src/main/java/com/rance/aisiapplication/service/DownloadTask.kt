@@ -5,6 +5,7 @@ import android.util.Log
 import com.rance.aisiapplication.common.AppDatabase
 import com.rance.aisiapplication.model.DownType
 import com.rance.aisiapplication.ui.downloadlist.DownloadListFragment
+import com.rance.aisiapplication.ui.downloadlist.DownloadPayloadsEnum
 import com.smartmicky.android.data.api.ApiHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -42,7 +43,7 @@ class DownloadTask(
     fun download() {
         picturesSet.downloading = true
         picturesSet.waiting = false
-        updateView()
+        updateView(DownloadPayloadsEnum.DOWNLOAD_STATUS_CHANGE)
         //检测是不是下载完成 完成检测目录文件 未完成下载
         GlobalScope.launch(Dispatchers.IO) {
             failCount.set(0)
@@ -63,7 +64,7 @@ class DownloadTask(
     fun cancel() {
         picturesSet.downloading = false
         picturesSet.waiting = false
-        updateView()
+        updateView(DownloadPayloadsEnum.DOWNLOAD_STATUS_CHANGE)
         if (this::threadPool.isInitialized) {
             threadPool.shutdownNow()
         }
@@ -138,7 +139,7 @@ class DownloadTask(
      * 更新进度 200毫秒更新一次
      */
     override fun updateProgress() {
-        updateView()
+        updateView(DownloadPayloadsEnum.PROGRESS_CHANGE)
     }
 
     /**
@@ -146,7 +147,7 @@ class DownloadTask(
      */
     override fun updateSpeedPerSecond(speedPerSecond: String) {
         adapter.speedPerSecondText = speedPerSecond
-        updateView()
+        updateView(DownloadPayloadsEnum.SPEED_CHANGE)
     }
 
     /**
@@ -156,13 +157,12 @@ class DownloadTask(
         println("下载线程执行结束 mapSize:${picturesSet.fileMap.size}")
         if (picturesSet.originalImageUrlList.size == (picturesSet.fileMap.size + failCount.get())) {
             if (failCount.get() == 0) {
-                picturesSet.downType = DownType.SUCCESS
+                picturesSet.downloadType = DownType.SUCCESS
                 downloadTaskController.onExecuteComplete(true)
             } else {
-                picturesSet.downType = DownType.FAIL
+                picturesSet.downloadType = DownType.FAIL
                 downloadTaskController.onExecuteComplete(false)
             }
-            picturesSet.downloading = false
             updatePicturesSet()
             cancel()
         }
@@ -189,9 +189,9 @@ class DownloadTask(
         }
     }
 
-    private fun updateView() {
+    private fun updateView(payloadsEnum: DownloadPayloadsEnum) {
         GlobalScope.launch(Dispatchers.Main) {
-            adapter.notifyItemChanged(position)
+            adapter.notifyItemChanged(position, payloadsEnum)
         }
     }
 }

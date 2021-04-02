@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/downloadAllButton"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_play_arrow_24"
+        android:title="@string/download_all" />
+
+    <item
+        android:id="@+id/cancelAllButton"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_pause_24"
+        android:title="@string/cancel_all" />
+</menu>

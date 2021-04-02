@@ -15,4 +15,6 @@
     <string name="completed">已完成</string>
     <string name="waiting">等待中</string>
     <string name="not_initiated">未启动</string>
+    <string name="download_all">下载所有</string>
+    <string name="cancel_all">取消所有</string>
 </resources>
