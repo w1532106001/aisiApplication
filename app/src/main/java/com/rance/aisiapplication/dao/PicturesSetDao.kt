@@ -25,4 +25,10 @@ interface PicturesSetDao {
 
     @Update
     fun update(picturesSet: PicturesSet)
+
+    @Query("DELETE FROM picturesset where url = :url")
+    fun deleteByUrl(url:String)
+//
+//    @Query("UPDATE picturesSet set lastWatchPosition = :position where url = :url")
+//    fun updateLastWatchPosition(position: Int,url: String)
 }

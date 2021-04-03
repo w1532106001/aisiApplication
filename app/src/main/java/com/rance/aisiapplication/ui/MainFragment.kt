@@ -5,17 +5,15 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.rance.aisiapplication.R
 import com.rance.aisiapplication.databinding.FragmentMainBinding
 import com.rance.aisiapplication.ui.base.BaseFragment
-import com.rance.aisiapplication.ui.dashboard.DashboardFragment
+import com.rance.aisiapplication.ui.modellist.ModelListFragment
+import com.rance.aisiapplication.ui.downloadlist.DownloadListFragment
 import com.rance.aisiapplication.ui.home.HomeFragment
 import com.rance.aisiapplication.ui.notifications.NotificationsFragment
 
@@ -43,7 +41,7 @@ class MainFragment : BaseFragment() {
                 if (lastItem !== item) { // 判断当前点击是否为item自身
                     lastItem = item
                     binding.viewPage2.currentItem = when (item.itemId) {
-                         R.id.navigation_home -> {
+                        R.id.navigation_home -> {
                             0
                         }
                         R.id.navigation_dashboard -> {
@@ -64,11 +62,17 @@ class MainFragment : BaseFragment() {
             currentItem = 0
         }
 
+        binding.floatingButton.setOnClickListener {
+                activity?.supportFragmentManager?.beginTransaction()?.add(
+                    R.id.layout_content,
+                    DownloadListFragment()
+                )?.addToBackStack(null)?.commit()
+        }
     }
 
     class BottomAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         private val fragmentList =
-            arrayListOf(HomeFragment(), NotificationsFragment(), DashboardFragment())
+            arrayListOf(HomeFragment(),ModelListFragment(), NotificationsFragment() )
 
         override fun getItemCount(): Int {
             return fragmentList.size

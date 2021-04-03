@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#2893F3</color>
+    <color name="colorPrimaryLight">#2893F3</color>
+    <color name="colorAccent">#2893F3</color>
+    <color name="light_gray">#dbdbdb</color>
+    <color name="lighter_gray">#eeeeee</color>
+    <color name="gray">#7e7e7e</color>
+    <color name="semi_gray">#979797</color>
+    <color name="dark_gray">#696969</color>
+    <color name="bg_color">#fafafa</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>

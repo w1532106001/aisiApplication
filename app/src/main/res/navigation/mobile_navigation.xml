@@ -20,8 +20,8 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.rance.aisiapplication.ui.dashboard.DashboardFragment"
-        tools:layout="@layout/fragment_dashboard" />
+        android:name="com.rance.aisiapplication.ui.modellist.ModelListFragment"
+        tools:layout="@layout/fragment_model_list" />
 
     <fragment
         android:id="@+id/navigation_notifications"

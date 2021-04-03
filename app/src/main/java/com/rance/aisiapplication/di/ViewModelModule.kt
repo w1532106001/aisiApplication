@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.rance.aisiapplication.ui.downloadlist.DownloadListViewModel
 
 import com.rance.aisiapplication.ui.home.HomeViewModel
+import com.rance.aisiapplication.ui.homepage.HomePageViewModel
+import com.rance.aisiapplication.ui.model.ModelViewModel
+import com.rance.aisiapplication.ui.modellist.ModelListViewModel
 import com.rance.aisiapplication.ui.picturesset.PicturesSetViewModel
 import dagger.Binds
 import dagger.Module
@@ -33,4 +36,19 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(DownloadListViewModel::class)
     internal abstract fun bindDownloadListViewModel(viewModel: DownloadListViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(HomePageViewModel::class)
+    internal abstract fun bindHomePageViewModel(viewModel: HomePageViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ModelListViewModel::class)
+    internal abstract fun bindModelListViewModel(viewModel: ModelListViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ModelViewModel::class)
+    internal abstract fun bindModelViewModel(viewModel: ModelViewModel): ViewModel
 }

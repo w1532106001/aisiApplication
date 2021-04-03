@@ -100,11 +100,16 @@ class DownloadTask(
     }
 
     private fun downFile(url: String) {
+        val parentFile = File(context.filesDir.absolutePath + File.separator+picturesSet.name)
+        if(!parentFile.exists()){
+            parentFile.mkdirs()
+        }
         val file =
             File(
-                context.filesDir.absolutePath + File.separator + url.substring(url.lastIndexOf("/") + 1)
+                parentFile.absolutePath + File.separator + url.substring(url.lastIndexOf("/") + 1)
                     .replace(".jpg", "").replace(".png", "") + ".jpg"
             )
+        println("文件路径${file.absolutePath}")
         try {
             val response = apiHelper.downloadFileWithDynamicUrlSync(
                 url.replace(

@@ -10,11 +10,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.rance.aisiapplication.R
+import com.rance.aisiapplication.common.AppDatabase
 import com.rance.aisiapplication.common.loadImage
 import com.rance.aisiapplication.common.setSingleClickListener
 import com.rance.aisiapplication.databinding.PicturesSetFragmentBinding
+import com.rance.aisiapplication.model.DownType
 import com.rance.aisiapplication.model.PicturesSet
 import com.rance.aisiapplication.ui.base.BaseFragment
+import com.rance.aisiapplication.ui.downloadlist.DownloadListViewModel
 import com.rance.aisiapplication.ui.imageview.WatchImagesFragment
 import com.smartmicky.android.data.api.ApiHelper
 import kotlinx.coroutines.Dispatchers
@@ -23,19 +26,25 @@ import kotlinx.coroutines.launch
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import retrofit2.awaitResponse
+import javax.inject.Inject
 
 class PicturesSetFragment : BaseFragment() {
 
     lateinit var binding: PicturesSetFragmentBinding
 
     var url = ""
+    var cover = ""
     lateinit var thumbnailImageAdapter: ThumbnailImageAdapter
 
+    @Inject
+    lateinit var database: AppDatabase
+
     companion object {
-        fun newInstance(url: String): PicturesSetFragment {
+        fun newInstance(url: String,cover:String): PicturesSetFragment {
             return PicturesSetFragment().apply {
                 arguments = Bundle().apply {
                     putString("url", url)
+                    putString("cover", cover)
                 }
             }
         }
@@ -58,23 +67,13 @@ class PicturesSetFragment : BaseFragment() {
         viewModel?.initData(url)
         showLoading()
         viewModel?.picturesSetLiveData?.observe(viewLifecycleOwner, {
-            if(it==null){
-                showError("数据异常")
+            if (it == null) {
+                parseData(false,viewModel, url)
             }
             it?.let {
                 if (it.thumbnailUrlList.isEmpty()) {
                     //开始解析
-                    GlobalScope.launch(Dispatchers.IO) {
-                        try {
-                            viewModel.database.getPicturesSetDao()
-                                .update(parsePicturesSet(it, viewModel.apiHelper))
-                        } catch (e: Exception) {
-                            launch(Dispatchers.Main) {
-                                showError()
-                                e.printStackTrace()
-                            }
-                        }
-                    }
+                  parseData(true,viewModel, url)
                 } else {
                     showContent()
                     thumbnailImageAdapter = ThumbnailImageAdapter().apply {
@@ -116,9 +115,26 @@ class PicturesSetFragment : BaseFragment() {
                         }
                         thumbnailImageAdapter.addChildClickViewIds(R.id.thumbnailItemLayout)
                         thumbnailImageAdapter.setList(it.thumbnailUrlList)
-
+                        val picturesSet = it
+                        downloadButton.text = when(it.downloadType){
+                            DownType.NOT_INITIATED->{
+                                "未启动"
+                            }
+                            DownType.NONE->{
+                                "下载"
+                            }
+                            DownType.FAIL->{
+                                "失败"
+                            }
+                            DownType.SUCCESS->{
+                                "已下载"
+                            }
+                        }
                         downloadButton.setSingleClickListener {
-
+                            GlobalScope.launch(Dispatchers.IO) {
+                                picturesSet.downloadType = DownType.NOT_INITIATED
+                                database.getPicturesSetDao().update(picturesSet)
+                            }
                         }
                     }
                 }
@@ -135,16 +151,42 @@ class PicturesSetFragment : BaseFragment() {
 
     }
 
+    fun parseData(exist:Boolean,viewModel:PicturesSetViewModel,url: String){
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val picturesSet = parsePicturesSet(url, viewModel.apiHelper)
+                if(picturesSet.cover.isEmpty()){
+                    picturesSet.cover = cover
+                }
+                if(!exist){
+                    viewModel.database.getPicturesSetDao()
+                        .insert(picturesSet)
+                }else{
+                    viewModel.database.getPicturesSetDao()
+                        .update(picturesSet)
+                }
+                println(viewModel.database.getPicturesSetDao().findPicturesSetByUrl(url))
+            } catch (e: Exception) {
+                launch(Dispatchers.Main) {
+                    showError()
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+
     private suspend fun parsePicturesSet(
-        picturesSet: PicturesSet,
+        url: String,
         apiHelper: ApiHelper
     ): PicturesSet {
+        val picturesSet: PicturesSet = PicturesSet()
+        picturesSet.url = url
         val currentTime = System.currentTimeMillis()
         //收集第一页数据
         var totalPage = 1
-        val url = "https://www.24tupian.org$url"
         try {
-            val documentResponse = apiHelper.getHtml(url).awaitResponse()
+            val documentResponse = apiHelper.getHtml("http://www.24tupian.org$url").awaitResponse()
             if (documentResponse.isSuccessful) {
                 val document = Jsoup.parse(documentResponse.body().toString())
                 val hd3 = document.getElementsByClass("hd3")[0]
@@ -155,7 +197,8 @@ class PicturesSetFragment : BaseFragment() {
                     picturesSet.modelName = grText.substring(0, grText.indexOf("的所有") - 3);
                     picturesSet.modelUrl = gr[0].attr("href")
                 }
-
+                val name = document.select("body > div.box > div.certen2 > div.gtitle1 > h1").text()
+                picturesSet.name = name
                 val time = hd3.text().substring(hd3.text().indexOf("发布时间：") + 5).trim();
                 if (time.isNotEmpty()) {
                     picturesSet.releaseTime = time;
@@ -175,9 +218,10 @@ class PicturesSetFragment : BaseFragment() {
                 //等待第一页完成处理采集每页任务
                 if (totalPage > 1) {
                     val pageJob = GlobalScope.launch {
-                        repeat(totalPage-1) {
-                            Log.v("whc","采集第${it}页时间：${System.currentTimeMillis()}")
-                            val pageUrl = url.replace(".html", "") + '_' + (it+1).toString() + ".html"
+                        repeat(totalPage - 1) {
+                            Log.v("whc", "采集第${it}页时间：${System.currentTimeMillis()}")
+                            val pageUrl =
+                                "http://www.24tupian.org$url".replace(".html", "") + '_' + (it + 1).toString() + ".html"
                             val pageDocumentResponse = apiHelper.getHtml(pageUrl).awaitResponse()
                             if (pageDocumentResponse.isSuccessful) {
                                 val pageDocument =
@@ -221,7 +265,7 @@ class PicturesSetFragment : BaseFragment() {
     /**
      * 下载文件
      */
-    private fun downloadPicturesSet(picturesSet: PicturesSet){
+    private fun downloadPicturesSet(picturesSet: PicturesSet) {
 
     }
 }

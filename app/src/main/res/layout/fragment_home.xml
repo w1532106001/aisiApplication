@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/refreshLayout"
+    android:id="@+id/mainLayout"
     tools:context=".ui.home.HomeFragment"
-    android:background="#f2f2f2">
+    android:background="#f2f2f2"
+    android:orientation="vertical">
 
-   <androidx.recyclerview.widget.RecyclerView
-       android:id="@+id/recyclerView"
+   <com.google.android.material.tabs.TabLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:id="@+id/tabLayout"/>
+   <androidx.viewpager.widget.ViewPager
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:layout_margin="10dp"/>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+       android:id="@+id/viewPage"/>
+</LinearLayout>

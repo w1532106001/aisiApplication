@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e08ff9b2e0ac7bf9d9fd45c37f90ea58",
+    "identityHash": "23a602e6dacf405171933e3423d2fcc4",
     "entities": [
       {
         "tableName": "PicturesSet",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `releaseTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `updateTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, `downType` INTEGER NOT NULL, `fileMap` TEXT NOT NULL, PRIMARY KEY(`url`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `fileSize` TEXT NOT NULL, `releaseTime` TEXT NOT NULL, `clickNum` INTEGER NOT NULL, `downNum` INTEGER NOT NULL, `associationName` TEXT NOT NULL, `associationUrl` TEXT NOT NULL, `modelName` TEXT NOT NULL, `modelUrl` TEXT NOT NULL, `thumbnailUrlList` TEXT NOT NULL, `originalImageUrlList` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `updateTime` INTEGER NOT NULL, `lastWatchTime` INTEGER NOT NULL, `lastWatchPosition` INTEGER NOT NULL, `watchNum` INTEGER NOT NULL, `downloadType` INTEGER NOT NULL, `fileMap` TEXT NOT NULL, PRIMARY KEY(`url`))",
         "fields": [
           {
             "fieldPath": "url",
@@ -123,8 +123,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "downType",
-            "columnName": "downType",
+            "fieldPath": "downloadType",
+            "columnName": "downloadType",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -143,12 +143,74 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Model",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`url` TEXT NOT NULL, `cover` TEXT, `name` TEXT, `clickNum` TEXT, `downNum` TEXT, `introduction` TEXT, `page` INTEGER NOT NULL, `picturesSetList` TEXT, PRIMARY KEY(`url`))",
+        "fields": [
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cover",
+            "columnName": "cover",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clickNum",
+            "columnName": "clickNum",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "downNum",
+            "columnName": "downNum",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "introduction",
+            "columnName": "introduction",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "page",
+            "columnName": "page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "picturesSetList",
+            "columnName": "picturesSetList",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "url"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e08ff9b2e0ac7bf9d9fd45c37f90ea58')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '23a602e6dacf405171933e3423d2fcc4')"
     ]
   }
 }

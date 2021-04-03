@@ -5,6 +5,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rance.aisiapplication.model.DownType
+import com.rance.aisiapplication.model.PicturesSet
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -57,6 +58,20 @@ class Converters {
             ConcurrentHashMap()
         } else {
             Gson().fromJson(string.toString(), object : TypeToken<ConcurrentHashMap<String, String>>() {}.type)
+        }
+    }
+
+    @TypeConverter
+    fun picturesSetListToString(picturesSetList: ArrayList<PicturesSet>?): String {
+        return Gson().toJson(picturesSetList)
+    }
+
+    @TypeConverter
+    fun stringToPicturesSetList(string: String?):  ArrayList<PicturesSet>? {
+        return if (string.isNullOrEmpty()) {
+            null
+        } else {
+            Gson().fromJson(string.toString(), object : TypeToken<ArrayList<PicturesSet>>() {}.type)
         }
     }
 }

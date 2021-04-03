@@ -17,9 +17,9 @@
             android:id="@+id/toolbar_base"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/purple_200"
+            android:background="@color/purple_500"
             android:visibility="gone"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
             app:titleTextAppearance="@style/Toolbar.TitleText"
             app:layout_scrollFlags="scroll|enterAlways"
             app:titleTextColor="@color/white" />

@@ -1,17 +1,15 @@
-package com.rance.aisiapplication.ui.home
+package com.rance.aisiapplication.ui.modellist
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.rance.aisiapplication.model.PicturesSet
-import com.rance.aisiapplication.ui.homepage.HomePageType
-import com.rance.aisiapplication.ui.homepage.HomePageViewModel
+import com.rance.aisiapplication.model.Model
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.awaitResponse
 
-class PicturesSetPagingSource(val homePageViewModel: HomePageViewModel,val homePageType: HomePageType) : PagingSource<Int, PicturesSet>() {
-    override fun getRefreshKey(state: PagingState<Int, PicturesSet>): Int? {
+class ModelPagingSource(val modelListViewModel: ModelListViewModel) : PagingSource<Int, Model>() {
+    override fun getRefreshKey(state: PagingState<Int, Model>): Int? {
         // Try to find the page key of the closest page to anchorPosition, from
         // either the prevKey or the nextKey, but you need to handle nullability
         // here:
@@ -25,19 +23,19 @@ class PicturesSetPagingSource(val homePageViewModel: HomePageViewModel,val homeP
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PicturesSet> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Model> {
         try {
             // Start refresh at page 1 if undefined.
             val nextPageNumber = params.key ?: 1
 
-            val response = homePageViewModel.apiHelper.getHtml("http://www.24tupian.org/"+homePageType.url+"_$nextPageNumber.html").awaitResponse()
+            val response = modelListViewModel.apiHelper.getHtml("http://www.24tupian.org/model_$nextPageNumber.html").awaitResponse()
             return if(response.isSuccessful){
-                val picturesSetList = PicturesSet.htmlToPicturesSetList(response.body()!!) as ArrayList<PicturesSet>
+                val modelList = Model.htmlToModelList(response.body()!!) as ArrayList<Model>
                 GlobalScope.launch(Dispatchers.IO) {
-                    homePageViewModel.savePicturesSet(picturesSetList)
+                    modelListViewModel.saveModelList(modelList)
                 }
                 LoadResult.Page(
-                    data = picturesSetList,
+                    data = modelList,
                     prevKey = null, // Only paging forward.
                     nextKey = nextPageNumber + 1
                 )
